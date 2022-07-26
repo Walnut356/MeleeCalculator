@@ -1,7 +1,9 @@
 #pragma once
+#include <vector>
 #include <string>
 #include <map>
 #include <utility>
+#include <iostream>
 
 using std::cin;
 using std::cout;
@@ -15,7 +17,7 @@ using std::map;
 //Global Variables:
 const int maxKB = 2500;
 const double elecMulti = 1.5;
-const double ccMulti = (2/3);
+const double ccMulti = (2 / 3);
 const int tumbleThresh = 80;
 const double vcancelMulti = .95;
 const int maxHitlag = 20;
@@ -28,6 +30,44 @@ const double kbDecay = .051;
 // or decremented by traction? Probably both
 
 
+//Character Attribute Maps
+//keyed to strings of the character's name
+
+
+
+const map<string, int> chrWeight = { {"bowser", 117},{"falcon", 104},{"dk", 114},{"doc", 100},{"falco", 80},{"fox", 75},{"gnw", 60},{"ganon", 109},{"ics", 88},
+                                     {"jiggs", 60},{"kirby", 70},{"link", 104},{"luigi", 100},{"mario", 100},{"marth", 87},{"mewtwo", 85},{"ness", 94},{"peach", 90},
+                                     {"pichu", 55},{"pika", 80},{"roy", 85},{"samus", 110},{"sheik", 90},{"yoshi", 108},{"ylink", 85},{"zelda", 90} };
+
+const map<string, double> chrGravity = { {"bowser", .13},{"falcon", .13},{"dk", .1},{"doc", .095},{"falco", .17},{"fox", .23},{"gnw", .095},{"ganon", .13},{"ics", .1},
+                                         {"jiggs", .064},{"kirby", .08},{"link", .11},{"luigi", .069},{"mario", .095},{"marth", .095},{"mewtwo", .082},{"ness", .09},{"peach", .08},
+                                         {"pichu", .11},{"pika", .11},{"roy", .114},{"samus", .066},{"sheik", .12},{"yoshi", .093},{"ylink", .11},{"zelda", .073} };
+
+const map<string, double> chrJumpForceF = { {"bowser", 2.8},{"falcon", 3.1},{"dk", 2.7},{"doc", 2.3},{"falco", 4.1},{"fox", 3.68},{"gnw", 2.3},{"ganon", 2.6},{"ics", 2.6},
+                                         {"jiggs", 1.6},{"kirby", 2},{"link", 2.5},{"luigi", 2.4},{"mario", 2.3},{"marth", 2.4},{"mewtwo", 2.3},{"ness", 2.5},{"peach", 2.2},
+                                         {"pichu", 2.6},{"pika", 2.6},{"roy", 2.6},{"samus", 2.1},{"sheik", 2.8},{"yoshi", 2.5},{"ylink", 2.62},{"zelda", 2.1} };
+
+const map<string, double> chrJumpForceS = { {"bowser", 1.6},{"falcon", 1.9},{"dk", 1.6},{"doc", 1.4},{"falco", 1.9},{"fox", 2.1},{"gnw", 1.4},{"ganon", 2},{"ics", 1.4},
+                                         {"jiggs", 1.05},{"kirby", 1.5},{"link", 1.5},{"luigi", 1.4},{"mario", 1.4},{"marth", 1.5},{"mewtwo", 1.4},{"ness", 1.5},{"peach", 1.6},
+                                         {"pichu", 1.7},{"pika", 1.7},{"roy", 1.5},{"samus", 1.7},{"sheik", 2.14},{"yoshi", 1.8},{"ylink", 1.5},{"zelda", 1.6} };
+
+const map<string, double> chrJumpForceDJ = { {"bowser", 2.8},{"falcon", 2.79},{"dk", 2.457},{"doc", 2.3},{"falco", 4.018},{"fox", 4.416},{"gnw", 2.3},{"ganon", 2.47},{"ics", 2.6},
+                                          {"jiggs", 0.0},{"kirby", 0.0},{"link", 2.2},{"luigi", 2.16},{"mario", 2.3},{"marth", 2.112},{"mewtwo", 10.0},{"ness", 10.0},{"peach", 10.0},
+                                          {"pichu", 2.6},{"pika", 2.6},{"roy", 2.288},{"samus", 1.89},{"sheik", 3.08},{"yoshi", 10},{"ylink", 2.3056},{"zelda", 1.806} };
+//jiigs and kirby have multiple DJs and multiple DJ forces. Using 0.0 is a garbage workaround to let me if/else check them
+//ditto for the DJC characters (Peach, yoshi, ness, m2), except with a value of 10 since theirs are mapped to their animation. 
+//I will include a flat vector with the vertical velocity on each frame once I get around to it
+
+
+const map<string, double> chrMaxFall = { {"bowser", 1.9},{"falcon", 2.9},{"dk", 2.4},{"doc", 1.7},{"falco", 3.1},{"fox", 2.8},{"gnw", 1.7},{"ganon", 2},{"ics", 1.6},
+                                          {"jiggs", 1.3},{"kirby", 1.6},{"link", 2.13},{"luigi", 1.6},{"mario", 1.7},{"marth", 2.2},{"mewtwo", 1.5},{"ness", 1.83},{"peach", 1.5},
+                                          {"pichu", 1.9},{"pika", 1.9},{"roy", 2.4},{"samus", 1.4},{"sheik", 2.13},{"yoshi", 1.93},{"ylink", 2.13},{"zelda", 1.4} };
+
+const map<string, double> chrFastFall = { {"bowser", 117},{"falcon", 104},{"dk", 114},{"doc", 100},{"falco", 80},{"fox", 75},{"gnw", 60},{"ganon", 109},{"ics", 88},
+                                          {"jiggs", 60},{"kirby", 70},{"link", 104},{"luigi", 100},{"mario", 100},{"marth", 87},{"mewtwo", 85},{"ness", 94},{"peach", 90},
+                                          {"pichu", 55},{"pika", 80},{"roy", 85},{"samus", 110},{"sheik", 90},{"yoshi", 108},{"ylink", 85},{"zelda", 90} };
+
+
 //Hitlag Calculator
 int hitLag(double damage, bool elec)
 {
@@ -37,12 +77,12 @@ int hitLag(double damage, bool elec)
     {
         *ecRef = elecMulti;
     }
-    double hLag = floor(floor((damage * 0.3333334 + 3)) * elecConst);
+    int hLag = floor(floor((damage * 0.3333334 + 3)) * elecConst);
     return hLag;
 }
 
 //Shieldstun Calculator
-double shieldStun(int damage)
+double shieldStun(double damage)
 {
     double stun = floor(((4.45 + damage) / 2.235));
 
@@ -51,7 +91,7 @@ double shieldStun(int damage)
 
 
 //Jump Height Calculator
-void calcHeight( double velocity, double gravity, double fallMax)
+void calcHeight(double velocity, double gravity, double fallMax)
 {
     double vel{ velocity };
     double grav{ gravity };
@@ -73,45 +113,48 @@ void calcHeight( double velocity, double gravity, double fallMax)
             std::cout << "Height(^): " << height << '\n';
         else if (vel == 0)
             std::cout << "Height(-): " << height << '\n';
-        else if (vel < 0)
-            std::cout << "Height(V): " << height << '\n';
         else if (vel == -fallMax)
             std::cout << "Height(Y): " << height << '\n';
+        else if (vel < 0)
+            std::cout << "Height(V): " << height << '\n';
+
     }
     std::cout << '\n' << "=================================================" << '\n';
 }
 
 void jHeightMain()
 {
-    double aJumpX{ 0 };
+    //double aJumpX{ 0 }; temporarily using flat value
     double gravity{ 0 };
     double fallMax{ 0 };
     double fhVelocity{ 0 };
     double shVelocity{ 0 };
-    std::string charName;
+    double djVelocity{ 0 };
+    std::string chrName;
 
     std::cout << "Character: ";
-    std::cin >> charName;
-    std::cout << "Fullhop Initial Velocity: ";
-    std::cin >> fhVelocity;
-    std::cout << "Shorthop Initial Velocity: ";
-    std::cin >> shVelocity;
-    std::cout << "Air Jump Multiplier: ";
-    std::cin >> aJumpX;
-    std::cout << "Gravity: ";
-    std::cin >> gravity;
-    std::cout << "Max Fallspeed: ";
-    std::cin >> fallMax;
+    std::cin >> chrName;
+    gravity = chrGravity.at(chrName);
+    fallMax = chrMaxFall.at(chrName);
+    fhVelocity = chrJumpForceF.at(chrName);
+    shVelocity = chrJumpForceS.at(chrName);
+    djVelocity = chrJumpForceDJ.at(chrName);
 
-    std::cout << '\n' << '\n' << charName << '\n' << "==========" << '\n';
+
+    std::cout << '\n' << '\n' << chrName << '\n' << "==========" << '\n';
 
     std::cout << "Fullhop:" << '\n';
     calcHeight(fhVelocity, gravity, fallMax);
     std::cout << "Shorthop:" << '\n';
     calcHeight(shVelocity, gravity, fallMax);
-    std::cout << "Doublejump:" << '\n';
-    calcHeight(((fhVelocity * aJumpX) - gravity), gravity, fallMax);
-
+    
+    if (djVelocity != 0.0 && djVelocity != 10.0)
+    {
+        std::cout << "Doublejump:" << '\n';
+        calcHeight((djVelocity - gravity), gravity, fallMax);
+    }
+    else
+        std::cout << "Weird doublejumps, working on calculating in the future =(";
     system("Pause");
     return;
 }
@@ -119,44 +162,8 @@ void jHeightMain()
 
 
 
-//Character Attribute Maps
-//keyed to strings of the character's name
 
 
-
-const map<string, int> chrWeight = { {"bowser", 117},{"falcon", 104},{"dk", 114},{"doc", 100},{"falco", 80},{"fox", 75},{"gnw", 60},{"ganon", 109},{"ics", 88},
-									 {"jiggs", 60},{"kirby", 70},{"link", 104},{"luigi", 100},{"mario", 100},{"marth", 87},{"mewtwo", 85},{"ness", 94},{"peach", 90},
-									 {"pichu", 55},{"pika", 80},{"roy", 85},{"samus", 110},{"sheik", 90},{"yoshi", 108},{"ylink", 85},{"zelda", 90}};
-
-const map<string, double> chrGravity = { {"bowser", .13},{"falcon", .13},{"dk", .1},{"doc", .095},{"falco", .17},{"fox", .23},{"gnw", .095},{"ganon", .13},{"ics", .1},
-										 {"jiggs", .064},{"kirby", .08},{"link", .11},{"luigi", .069},{"mario", .095},{"marth", .095},{"mewtwo", .082},{"ness", .09},{"peach", .08},
-										 {"pichu", .11},{"pika", .11},{"roy", .114},{"samus", .066},{"sheik", .12},{"yoshi", .093},{"ylink", .11},{"zelda", .073} };
-
-const map<string, double> chaJumpForceF = { {"bowser", 2.8},{"falcon", 3.1},{"dk", 2.7},{"doc", 2.3},{"falco", 4.1},{"fox", 3.68},{"gnw", 2.3},{"ganon", 2.6},{"ics", 2.6},
-										 {"jiggs", 1.6},{"kirby", 2},{"link", 2.5},{"luigi", 2.4},{"mario", 2.3},{"marth", 2.4},{"mewtwo", 2.3},{"ness", 2.5},{"peach", 2.2},
-										 {"pichu", 2.6},{"pika", 2.6},{"roy", 2.6},{"samus", 2.1},{"sheik", 2.8},{"yoshi", 2.5},{"ylink", 2.62},{"zelda", 2.1} };
-
-const map<string, double> chaJumpForceS = { {"bowser", 1.6},{"falcon", 1.9},{"dk", 1.6},{"doc", 1.4},{"falco", 1.9},{"fox", 2.1},{"gnw", 1.4},{"ganon", 2},{"ics", 1.4},
-										 {"jiggs", 1.05},{"kirby", 1.5},{"link", 1.5},{"luigi", 1.4},{"mario", 1.4},{"marth", 1.5},{"mewtwo", 1.4},{"ness", 1.5},{"peach", 1.6},
-										 {"pichu", 1.7},{"pika", 1.7},{"roy", 1.5},{"samus", 1.7},{"sheik", 2.14},{"yoshi", 1.8},{"ylink", 1.5},{"zelda", 1.6} };
-
-const map<string, double> chaJumpForceDJ = { {"bowser", 2.8},{"falcon", 2.79},{"dk", 2.457},{"doc", 2.3},{"falco", 4.018},{"fox", 4.416},{"gnw", 2.3},{"ganon", 2.47},{"ics", 2.6},
-										  {"jiggs", 0.0},{"kirby", 0.0},{"link", 2.2},{"luigi", 2.16},{"mario", 2.3},{"marth", 2.112},{"mewtwo", 10.0},{"ness", 10.0},{"peach", 10.0},
-										  {"pichu", 2.6},{"pika", 2.6},{"roy", 2.288},{"samus", 1.89},{"sheik", 3.08},{"yoshi", 10},{"ylink", 2.3056},{"zelda", 1.806} };
-										//jiigs and kirby have multiple DJs and multiple DJ forces. Using 0.0 is a garbage workaround to let me if/else check them
-										//ditto for the DJC characters (Peach, yoshi, ness, m2), except with a value of 10 since theirs are mapped to their animation. 
-										//I will include a flat vector with the vertical velocity on each frame once I get around to it
-										
-
-const map<string, double> chaMaxFall = { {"bowser", 1.9},{"falcon", 2.9},{"dk", 2.4},{"doc", 1.7},{"falco", 3.1},{"fox", 2.8},{"gnw", 1.7},{"ganon", 2},{"ics", 1.6},
-										  {"jiggs", 1.3},{"kirby", 1.6},{"link", 2.13},{"luigi", 1.6},{"mario", 1.7},{"marth", 2.2},{"mewtwo", 1.5},{"ness", 1.83},{"peach", 1.5},
-										  {"pichu", 1.9},{"pika", 1.9},{"roy", 2.4},{"samus", 1.4},{"sheik", 2.13},{"yoshi", 1.93},{"ylink", 2.13},{"zelda", 1.4} };
-
-/*const map<string, double> chaFastFall = {{"bowser", 117},{"falcon", 104},{"dk", 114},{"doc", 100},{"falco", 80},{"fox", 75},{"gnw", 60},{"ganon", 109},{"ics", 88},
-										  {"jiggs", 60},{"kirby", 70},{"link", 104},{"luigi", 100},{"mario", 100},{"marth", 87},{"mewtwo", 85},{"ness", 94},{"peach", 90},
-										  {"pichu", 55},{"pika", 80},{"roy", 85},{"samus", 110},{"sheik", 90},{"yoshi", 108},{"ylink", 85},{"zelda", 90} };
-
-*/
 
 
 

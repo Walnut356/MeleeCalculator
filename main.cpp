@@ -42,7 +42,6 @@ void pause()
 
 int main()
 {
-
     cout << "Fallspeed or Shieldstun/Hitlag (f/s): ";
 
     char startInput;
